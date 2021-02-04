@@ -7,10 +7,8 @@ import com.chat.util.ValidationUtility;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import static com.chat.command.Commands.DISCONNECT;
 
