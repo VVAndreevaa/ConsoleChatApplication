@@ -1,34 +1,39 @@
 package com.chat.client;
 
 import com.chat.entity.Message;
+import com.chat.exception.UnableToConnectException;
+import com.chat.util.ValidationUtility;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import static com.chat.command.Commands.DISCONNECT;
 
 public class ChatClient extends Thread {
 
     private final ClientControl clientControl;
-    private ObjectInputStream objectInputStream;
-    private ObjectOutputStream objectOutputStream;
-    private Socket socket;
-    private ClientResponse clientResponse;
+    private final ObjectInputStream objectInputStream;
+    private final ObjectOutputStream objectOutputStream;
+    private final Socket socket;
+    private final ClientResponse clientResponse;
     private boolean isActiveUser;
 
     public ChatClient(String addressName, int port, ClientControl clientControl) {
         this.clientControl = clientControl;
         try {
             socket = new Socket(InetAddress.getByName(addressName), port);
+            ValidationUtility.requireNonNull(socket, "Invalid address!");
             objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectInputStream = new ObjectInputStream(socket.getInputStream());
             clientResponse = new ClientResponse(clientControl);
             isActiveUser = true;
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            throw new UnableToConnectException(e.getMessage());
         }
     }
 

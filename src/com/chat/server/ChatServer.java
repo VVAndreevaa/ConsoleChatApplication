@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.chat.command.Commands.*;
@@ -40,25 +41,26 @@ public class ChatServer {
             while (isActiveServer){
                 MessageController messageController = new MessageController(this, socket);
                 users.add(messageController);
-
                 messageController.start();
-
                 socket = serverSocket.accept();
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
         } finally {
-            closeServer();
+            closeServerResources();
         }
     }
 
-    private void closeServer(){
-        for (MessageController user : users){
-            removeUser(user);
-            user.sendMessage(new Message("disconnect", "ADMIN", "", "Server closed!"));
+    private void closeServerResources(){
+        for(Iterator<MessageController> iter = users.iterator(); iter.hasNext();) {
+            MessageController user = iter.next();
+            user.sendMessage(new Message(DISCONNECT, "ADMIN", "", "Server closed!"));
+            iter.remove();
         }
-        for (Group group : groups){
+        for (Iterator<Group> iter = groups.iterator(); iter.hasNext();) {
+            Group group = iter.next();
             removeGroup(group);
+            iter.remove();
         }
         if (serverSocket != null){
             try {

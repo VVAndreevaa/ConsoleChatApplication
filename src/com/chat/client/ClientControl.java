@@ -2,7 +2,6 @@ package com.chat.client;
 
 import com.chat.command.CommandSplitter;
 import com.chat.entity.Message;
-import com.chat.exception.InvalidCommandParametersException;
 
 import java.awt.geom.IllegalPathStateException;
 import java.util.Scanner;
@@ -110,14 +109,14 @@ public class ClientControl {
             switch (command) {
                 case DISCONNECT -> {
                     isLogged = false;
-                    chatClient.send(new Message("disconnect", "", "", ""));
+                    chatClient.send(new Message(DISCONNECT, "", "", ""));
                 }
                 case SEND, SEND_TO_GROUP -> sendMessage(command, commandSplitter.getSecondParameter(), commandSplitter.getMessageFromIndex(2));
                 case NEW_GROUP, DEL_GROUP, JOIN_GROUP, LEAVE_GROUP -> groupMessageCommand(command, commandSplitter.getSecondParameter());
                 case ALL_USERS, ALL_GROUPS, EXIT -> globalServerMessage(command);
                 default -> System.out.println("Invalid command!");
             }
-        } catch (InvalidCommandParametersException | IllegalPathStateException e) {
+        } catch (IllegalPathStateException e) {
             System.err.println(e.getMessage());
         }
     }
