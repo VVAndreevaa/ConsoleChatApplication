@@ -53,8 +53,10 @@ public class MessageController extends Thread {
                     break;
                 }
             }
-        } catch (IOException | ClassNotFoundException | InvalidInputException e) {
+        } catch (IOException | ClassNotFoundException e) {
             chatServer.removeUser(this);
+            System.err.println(e.getMessage());
+        } catch (InvalidInputException e){
             System.err.println(e.getMessage());
         } finally {
             closeResources();
@@ -105,10 +107,7 @@ public class MessageController extends Thread {
             return false;
         MessageController other = (MessageController) obj;
         if (username == null) {
-            if (other.username != null)
-                return false;
-        } else if (!username.equals(other.username))
-            return false;
-        return true;
+            return other.username == null;
+        } else return username.equals(other.username);
     }
 }

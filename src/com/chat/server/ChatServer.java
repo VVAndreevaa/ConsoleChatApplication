@@ -54,7 +54,7 @@ public class ChatServer {
     private void closeServerResources(){
         for(Iterator<MessageController> iter = users.iterator(); iter.hasNext();) {
             MessageController user = iter.next();
-            user.sendMessage(new Message(DISCONNECT, "ADMIN", "", "Server closed!"));
+            user.sendMessage(new Message(DISCONNECT, "ADMIN", "", "Server closed! Press ENTER to exit."));
             iter.remove();
         }
         for (Iterator<Group> iter = groups.iterator(); iter.hasNext();) {

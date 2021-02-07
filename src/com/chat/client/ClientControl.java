@@ -2,6 +2,7 @@ package com.chat.client;
 
 import com.chat.command.CommandSplitter;
 import com.chat.entity.Message;
+import com.chat.exception.InvalidCommandParametersException;
 
 import java.awt.geom.IllegalPathStateException;
 import java.util.Scanner;
@@ -38,8 +39,7 @@ public class ClientControl {
                 break;
             }
             message = scanner.nextLine();
-            analyzeCurrentCommand(message);
-        } while (isLogged);
+        } while (isLogged && analyzeCurrentCommand(message));
     }
 
     private void connectClient() {
@@ -102,7 +102,7 @@ public class ClientControl {
         return command;
     }
 
-    private void analyzeCurrentCommand(String message) {
+    private boolean analyzeCurrentCommand(String message) {
         commandSplitter.splitMessage(message);
         String command = commandSplitter.getCommand();
         try {
@@ -116,9 +116,10 @@ public class ClientControl {
                 case ALL_USERS, ALL_GROUPS, EXIT -> globalServerMessage(command);
                 default -> System.out.println("Invalid command!");
             }
-        } catch (IllegalPathStateException e) {
+        } catch (IllegalPathStateException | InvalidCommandParametersException e) {
             System.err.println(e.getMessage());
         }
+        return isLogged;
     }
 
     private void groupMessageCommand(String command, String groupName) {

@@ -15,6 +15,7 @@ import static com.chat.util.ValidationUtility.*;
 public class ServerResponse {
 
     private static final String ADMIN = "ADMIN";
+    private static final String NULL_EXCEPTION_MSG = "Message controller <user> cannot be null!";
     private final ChatServer chatServer;
     private final UserController userController;
 
@@ -52,20 +53,20 @@ public class ServerResponse {
 
     public void respondToConnect(Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
-        user.sendMessage(new Message("send", ADMIN, "", "You have successfully connected."));
+        requireNonNull(user, NULL_EXCEPTION_MSG);
+        user.sendMessage(new Message(SEND, ADMIN, "", "You have successfully connected."));
     }
 
     public void respondToDisconnect(Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         chatServer.removeUser(user);
-        user.sendMessage(new Message("disconnect", ADMIN, "", "Disconnect: " + user.getUsername()));
+        user.sendMessage(new Message(DISCONNECT, ADMIN, "", "Disconnect: " + user.getUsername()));
     }
 
     public void respondToRegister(Message receivedMessage, Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         String message;
         if (userController.registerUser(receivedMessage.getSender(), receivedMessage.getText())) {
             user.setUsername(receivedMessage.getSender());
@@ -73,12 +74,12 @@ public class ServerResponse {
         } else {
             message = "This username already exists!";
         }
-        user.sendMessage(new Message("send", ADMIN, receivedMessage.getSender(), message));
+        user.sendMessage(new Message(SEND, ADMIN, receivedMessage.getSender(), message));
     }
 
     public void respondToLogin(Message receivedMessage, Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         MessageController temp = getUserByUsername(receivedMessage.getSender());
         String message;
 
@@ -92,7 +93,7 @@ public class ServerResponse {
         } else {
             message = "This account is already in use.";
         }
-        user.sendMessage(new Message("send", ADMIN, receivedMessage.getSender(), message));
+        user.sendMessage(new Message(SEND, ADMIN, receivedMessage.getSender(), message));
     }
 
     private void sendToGroup(Group group, Message receivedMessage) {
@@ -103,7 +104,7 @@ public class ServerResponse {
 
     public void respondToNewGroup(Message receivedMessage, Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         Group group = new Group(receivedMessage.getText(), user);
         String message;
 
@@ -113,12 +114,12 @@ public class ServerResponse {
         } else {
             message = "Name is already used.";
         }
-        user.sendMessage(new Message("send", ADMIN, "", message));
+        user.sendMessage(new Message(SEND, ADMIN, "", message));
     }
 
     public void respondToDeleteGroup(Message receivedMessage, Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         Group group = getGroupByName(receivedMessage.getText());
         String message;
 
@@ -133,19 +134,19 @@ public class ServerResponse {
         } else {
             message = "There is no group with this name.";
         }
-        user.sendMessage(new Message("send", ADMIN, "", message));
+        user.sendMessage(new Message(SEND, ADMIN, "", message));
     }
 
     private void notifyDeletedGroup(Group group, MessageController messageController) {
         final String messageToMembers = "Group " + group.getName() + " has been deleted by admin!";
-        Message newMessage = new Message("send", ADMIN, "", messageToMembers);
+        Message newMessage = new Message(SEND, ADMIN, "", messageToMembers);
         group.removeUser(messageController);
         sendToGroup(group, newMessage);
     }
 
     public void respondToGroupAction(Message receivedMessage, Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         Group group = getGroupByName(receivedMessage.getText());
         String message;
         if (group != null) {
@@ -153,7 +154,7 @@ public class ServerResponse {
         } else {
             message = "There is no such group.";
         }
-        user.sendMessage(new Message("send", ADMIN, "", message));
+        user.sendMessage(new Message(SEND, ADMIN, "", message));
     }
 
     public String groupActionsHandler(Group group, MessageController user, Message receivedMessage, String command) {
@@ -193,7 +194,7 @@ public class ServerResponse {
         } else {
             message = "You left the group \"" + receivedMessage.getText() + "\"";
             group.removeUser(user);
-            Message messageToMembers = new Message("send", group.getName(), "", user.getUsername() + " has left the group " + group.getName());
+            Message messageToMembers = new Message(SEND, group.getName(), "", user.getUsername() + " has left the group " + group.getName());
             sendToGroup(group, messageToMembers);
         }
         return message;
@@ -201,28 +202,28 @@ public class ServerResponse {
 
     public void respondToMessage(Message receivedMessage, Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         MessageController receiver = getUserByUsername(receivedMessage.getReceiver());
 
         if (receiver != null) {
-            receiver.sendMessage(new Message("send",
+            receiver.sendMessage(new Message(SEND,
                     user.getUsername(),
                     receivedMessage.getReceiver(),
                     receivedMessage.getText()));
         } else {
-            user.sendMessage(new Message("send", ADMIN, "", "There is no active user with that name!"));
+            user.sendMessage(new Message(SEND, ADMIN, "", "There is no active user with that name!"));
         }
     }
 
     public void respondToGroupMessage(Message receivedMessage, Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         Group group = getGroupByName(receivedMessage.getReceiver());
         String message = user.getUsername() + ": " + receivedMessage.getText();
 
         if (group != null) {
             if (group.containsUser(user)) {
-                Message messageToMembers = new Message("send", group.getName(), "", message);
+                Message messageToMembers = new Message(SEND, group.getName(), "", message);
                 sendToGroup(group, messageToMembers);
                 return;
             } else {
@@ -231,24 +232,24 @@ public class ServerResponse {
         } else {
             message = "There is no group with that name";
         }
-        user.sendMessage(new Message("send", ADMIN, "", message));
+        user.sendMessage(new Message(SEND, ADMIN, "", message));
     }
 
     public void respondToAllUsers(Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         int counter = 1;
-        StringBuffer message = new StringBuffer("Online users:" + "\n");
+        StringBuilder message = new StringBuilder("Online users:" + "\n");
         for (MessageController messageController : chatServer.getUsers()) {
             message.append(counter).append(". ").append(messageController.getUsername()).append("\n");
             counter++;
         }
-        user.sendMessage(new Message("send", ADMIN, "", message.toString()));
+        user.sendMessage(new Message(SEND, ADMIN, "", message.toString()));
     }
 
     public void respondAllGroups(Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         List<Group> list = chatServer.getGroups();
         int counter = 1;
         StringBuffer message = new StringBuffer("Groups:" + "\n");
@@ -261,16 +262,16 @@ public class ServerResponse {
         if (counter == 1) {
             message = new StringBuffer("No online groups." + "\n");
         }
-        user.sendMessage(new Message("send", ADMIN, "", message.toString()));
+        user.sendMessage(new Message(SEND, ADMIN, "", message.toString()));
     }
 
     public void respondToExit(Socket socket) {
         MessageController user = getUserBySocket(socket);
-        requireNonNull(user, "");
+        requireNonNull(user, NULL_EXCEPTION_MSG);
         if (user.getUsername().equals("admin")) {
             chatServer.stopServer();
         } else {
-            user.sendMessage(new Message("send", ADMIN, "", "You are not authorized to do this!"));
+            user.sendMessage(new Message(SEND, ADMIN, "", "You are not authorized to do this!"));
         }
     }
 }

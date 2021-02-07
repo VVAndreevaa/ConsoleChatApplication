@@ -22,16 +22,14 @@ public class CommandSplitter {
 
     public String getSecondParameter() {
         if (numOfTokens < 2) {
-            System.out.println("Invalid number of command parameters!");
-            return null;
+            throw new InvalidCommandParametersException("Invalid number of command parameters!");
         }
         return tokens[1];
     }
 
     public String getThirdParameter() {
         if (numOfTokens < 3) {
-            System.out.println("Invalid number of command parameters!");
-            return null;
+            throw new InvalidCommandParametersException("Invalid number of command parameters!");
         }
         return tokens[2];
     }
@@ -45,7 +43,7 @@ public class CommandSplitter {
             message.append(tokens[numOfTokens - 1]);
             return message.toString();
         } else {
-            throw new InvalidCommandParametersException("Invalid index!");
+            throw new InvalidCommandParametersException("Invalid number of command parameters!");
         }
     }
 }
