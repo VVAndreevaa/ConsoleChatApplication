@@ -7,21 +7,23 @@ public class UserController {
     private static final String USERS_FILE_PATH = "users.txt";
 
     public boolean registerUser(String username, String password) {
-        new File(USERS_FILE_PATH);;
-        if (!isRegisteredUsername(username)) {
-            try (PrintWriter writer = new PrintWriter(new FileOutputStream(USERS_FILE_PATH, true))) {
-                writer.println(username + " " + password);
-                writer.flush();
-                return true;
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
+        new File(USERS_FILE_PATH);
+            if (!isRegisteredUsername(username)) {
+                synchronized (this) {
+                    try (PrintWriter writer = new PrintWriter(new FileOutputStream(USERS_FILE_PATH, true))) {
+                        writer.println(username + " " + password);
+                        writer.flush();
+                        return true;
+                    } catch (IOException e) {
+                        System.err.println(e.getMessage());
+                    }
+                }
             }
-        }
-        return false;
+            return false;
     }
 
     public boolean isSuccessfulLogin(String username, String password) {
-        new File(USERS_FILE_PATH);;
+        new File(USERS_FILE_PATH);
         try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE_PATH))) {
             String line;
             while ((line = reader.readLine()) != null) {

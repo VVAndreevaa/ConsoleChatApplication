@@ -30,7 +30,9 @@ public class Group {
     }
 
     public void addUser(MessageController messageController){
-        members.add(messageController);
+        synchronized (members){
+            members.add(messageController);
+        }
     }
     public void removeUser(MessageController messageController){
         members.remove(messageController);
@@ -57,10 +59,7 @@ public class Group {
             return false;
         Group other = (Group) obj;
         if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        return true;
+            return other.name == null;
+        } else return name.equals(other.name);
     }
 }

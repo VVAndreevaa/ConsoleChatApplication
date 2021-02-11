@@ -40,7 +40,9 @@ public class ChatServer {
             serverResponse = new ServerResponse(this);
             while (isActiveServer){
                 MessageController messageController = new MessageController(this, socket);
-                users.add(messageController);
+                synchronized (users) {
+                    users.add(messageController);
+                }
                 messageController.start();
                 socket = serverSocket.accept();
             }
@@ -79,7 +81,7 @@ public class ChatServer {
         return groups;
     }
 
-    public void newGroup(Group group) {
+    public synchronized void newGroup(Group group) {
         groups.add(group);
     }
 
